@@ -56,4 +56,17 @@ export default class BunString {
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
   }
+
+  generateRandomHash (length) {
+    const allowedChars = 'abcdefghijklmnopqrstuvwxyz0123456789'
+    const charactersLength = allowedChars.length
+    let hash = ''
+
+    for (let i = 0; i < length; i++) {
+      const index = Math.floor(Math.random() * charactersLength)
+      hash += allowedChars.charAt(index)
+    }
+
+    return hash
+  }
 }
