@@ -8,6 +8,7 @@ import bunIds from './core/middlewares/bun-ids'
 import bunJson from './core/middlewares/bun-json'
 import bunMorgan from './core/middlewares/bun-morgan'
 import bunToken from './core/middlewares/bun-token'
+import bunMulter from './core/middlewares/bun-multer'
 
 import BunJWT from './core/tools/bun-jwt'
 import BunPassword from './core/tools/bun-password'
@@ -28,7 +29,8 @@ export default {
     bunIds,
     bunJson,
     bunMorgan,
-    bunToken
+    bunToken,
+    bunMulter
   },
   tools: {
     BunJWT,
