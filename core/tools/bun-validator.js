@@ -17,6 +17,8 @@ export default class BunValidator {
   _validateField (data, fieldPath, rules) {
     const values = this._getValuesByPath(data, fieldPath)
 
+    if (values.length === 0) values.push({ value: undefined, path: fieldPath })
+
     for (const valueObj of values) {
       const { value, path } = valueObj
 
@@ -77,6 +79,12 @@ export default class BunValidator {
   // RULES
   //
 
+  _checkEmpty (value) {
+    if (value === undefined) return true
+    if (value === null) return true
+    return false
+  }
+
   required (field, value) {
     if (value === undefined || value === null || value === '') {
       this._addError(field, language.current().tools.validator_required(field))
@@ -84,54 +92,63 @@ export default class BunValidator {
   }
 
   min (field, value, minValue) {
+    if (this._checkEmpty(value)) return
     if (value < Number(minValue)) {
       this._addError(field, language.current().tools.validator_min(field, minValue))
     }
   }
 
   max (field, value, maxValue) {
+    if (this._checkEmpty(value)) return
     if (value > Number(maxValue)) {
       this._addError(field, language.current().tools.validator_max(field, maxValue))
     }
   }
 
   minLength (field, value, minLength) {
+    if (this._checkEmpty(value)) return
     if (value.length < Number(minLength)) {
       this._addError(field, language.current().tools.validator_minLength(field, minLength))
     }
   }
 
   maxLength (field, value, maxLength) {
+    if (this._checkEmpty(value)) return
     if (value.length > Number(maxLength)) {
       this._addError(field, language.current().tools.validator_maxLength(field, maxLength))
     }
   }
 
   number (field, value) {
+    if (this._checkEmpty(value)) return
     if (typeof value !== 'number') {
       this._addError(field, language.current().tools.validator_number(field))
     }
   }
 
   string (field, value) {
+    if (this._checkEmpty(value)) return
     if (typeof value !== 'string') {
       this._addError(field, language.current().tools.validator_string(field))
     }
   }
 
   array (field, value) {
+    if (this._checkEmpty(value)) return
     if (!Array.isArray(value)) {
       this._addError(field, language.current().tools.validator_array(field))
     }
   }
 
   boolean (field, value) {
+    if (this._checkEmpty(value)) return
     if (typeof value !== 'boolean') {
       this._addError(field, language.current().tools.validator_boolean(field))
     }
   }
 
   email (field, value) {
+    if (this._checkEmpty(value)) return
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(value)) {
       this._addError(field, language.current().tools.validator_email(field))
@@ -139,6 +156,7 @@ export default class BunValidator {
   }
 
   url (field, value) {
+    if (this._checkEmpty(value)) return
     try {
       URL(value)
     } catch (_) {
@@ -147,12 +165,14 @@ export default class BunValidator {
   }
 
   date (field, value) {
+    if (this._checkEmpty(value)) return
     if (isNaN(Date.parse(value))) {
       this._addError(field, language.current().tools.validator_date(field))
     }
   }
 
   size (field, value, sizeValue) {
+    if (this._checkEmpty(value)) return
     const size = Number(sizeValue)
     if (typeof value === 'string' || Array.isArray(value)) {
       if (value.length !== size) {
@@ -164,6 +184,7 @@ export default class BunValidator {
   }
 
   hex (field, value) {
+    if (this._checkEmpty(value)) return
     const hexRegex = /^[0-9a-fA-F]+$/
     if (typeof value !== 'string' || !hexRegex.test(value)) {
       this._addError(field, language.current().tools.validator_hex(field))
@@ -171,6 +192,7 @@ export default class BunValidator {
   }
 
   in (field, value, allowedValues) {
+    if (this._checkEmpty(value)) return
     const valuesArray = allowedValues.split(',')
     if (!valuesArray.includes(value)) {
       this._addError(field, language.current().tools.validator_in(field, allowedValues))
@@ -178,6 +200,7 @@ export default class BunValidator {
   }
 
   slug (field, value) {
+    if (this._checkEmpty(value)) return
     const slugRegex = /^[0-9a-z-]+$/
     if (typeof value !== 'string' || !slugRegex.test(value)) {
       this._addError(field, language.current().tools.validator_slug(field))
@@ -185,6 +208,7 @@ export default class BunValidator {
   }
 
   cpf (field, value) {
+    if (this._checkEmpty(value)) return
     if (!this.isValidCPF(value)) {
       this._addError(field, language.current().tools.validator_cpf(field))
     }
@@ -211,6 +235,7 @@ export default class BunValidator {
   }
 
   cnpj (field, value) {
+    if (this._checkEmpty(value)) return
     if (!this.isValidCNPJ(value)) {
       this._addError(field, language.current().tools.validator_cnpj(field))
     }
@@ -252,6 +277,7 @@ export default class BunValidator {
   }
 
   phoneBr (field, value) {
+    if (this._checkEmpty(value)) return
     const phoneBrRegex = /^\(?\d{2}\)?[\s-]?[\s9]?\d{4}-?\d{4}$/
     if (typeof value !== 'string' || !phoneBrRegex.test(value)) {
       this._addError(field, language.current().tools.validator_phoneBr(field))
