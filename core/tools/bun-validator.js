@@ -1,3 +1,5 @@
+import language from '../languages/index'
+
 export default class BunValidator {
   constructor (rules) {
     this.rules = rules
@@ -77,62 +79,62 @@ export default class BunValidator {
 
   required (field, value) {
     if (value === undefined || value === null || value === '') {
-      this._addError(field, `${field} é obrigatório.`)
+      this._addError(field, language.current().tools.validator_required(field))
     }
   }
 
   min (field, value, minValue) {
     if (value < Number(minValue)) {
-      this._addError(field, `${field} deve ser no mínimo ${minValue}.`)
+      this._addError(field, language.current().tools.validator_min(field, minValue))
     }
   }
 
   max (field, value, maxValue) {
     if (value > Number(maxValue)) {
-      this._addError(field, `${field} deve ser no máximo ${maxValue}.`)
+      this._addError(field, language.current().tools.validator_max(field, maxValue))
     }
   }
 
   minLength (field, value, minLength) {
     if (value.length < Number(minLength)) {
-      this._addError(field, `${field} deve ter no mínimo ${minLength} caracteres.`)
+      this._addError(field, language.current().tools.validator_minLength(field, minLength))
     }
   }
 
   maxLength (field, value, maxLength) {
     if (value.length > Number(maxLength)) {
-      this._addError(field, `${field} deve ter no máximo ${maxLength} caracteres.`)
+      this._addError(field, language.current().tools.validator_maxLength(field, maxLength))
     }
   }
 
   number (field, value) {
     if (typeof value !== 'number') {
-      this._addError(field, `${field} deve ser um número.`)
+      this._addError(field, language.current().tools.validator_number(field))
     }
   }
 
   string (field, value) {
     if (typeof value !== 'string') {
-      this._addError(field, `${field} deve ser uma string.`)
+      this._addError(field, language.current().tools.validator_string(field))
     }
   }
 
   array (field, value) {
     if (!Array.isArray(value)) {
-      this._addError(field, `${field} deve ser um array.`)
+      this._addError(field, language.current().tools.validator_array(field))
     }
   }
 
   boolean (field, value) {
     if (typeof value !== 'boolean') {
-      this._addError(field, `${field} deve ser um booleano.`)
+      this._addError(field, language.current().tools.validator_boolean(field))
     }
   }
 
   email (field, value) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(value)) {
-      this._addError(field, `${field} deve ser um email válido.`)
+      this._addError(field, language.current().tools.validator_email(field))
     }
   }
 
@@ -140,13 +142,13 @@ export default class BunValidator {
     try {
       URL(value)
     } catch (_) {
-      this._addError(field, `${field} deve ser uma URL válida.`)
+      this._addError(field, language.current().tools.validator_url(field))
     }
   }
 
   date (field, value) {
     if (isNaN(Date.parse(value))) {
-      this._addError(field, `${field} deve ser uma data válida.`)
+      this._addError(field, language.current().tools.validator_date(field))
     }
   }
 
@@ -154,37 +156,37 @@ export default class BunValidator {
     const size = Number(sizeValue)
     if (typeof value === 'string' || Array.isArray(value)) {
       if (value.length !== size) {
-        this._addError(field, `${field} deve ter exatamente ${size} caracteres.`)
+        this._addError(field, language.current().tools.validator_size(field, size))
       }
     } else {
-      this._addError(field, `${field} deve ser uma string ou um array para validar o tamanho.`)
+      this._addError(field, language.current().tools.validator_size_error(field))
     }
   }
 
   hex (field, value) {
     const hexRegex = /^[0-9a-fA-F]+$/
     if (typeof value !== 'string' || !hexRegex.test(value)) {
-      this._addError(field, `${field} deve ser um hexadecimal válido.`)
+      this._addError(field, language.current().tools.validator_hex(field))
     }
   }
 
   in (field, value, allowedValues) {
     const valuesArray = allowedValues.split(',')
     if (!valuesArray.includes(value)) {
-      this._addError(field, `${field} deve ser um dos seguintes valores: ${allowedValues}.`)
+      this._addError(field, language.current().tools.validator_in(field, allowedValues))
     }
   }
 
   slug (field, value) {
     const slugRegex = /^[0-9a-z-]+$/
     if (typeof value !== 'string' || !slugRegex.test(value)) {
-      this._addError(field, `${field} deve conter apenas letras minúsculas, números e hífens.`)
+      this._addError(field, language.current().tools.validator_slug(field))
     }
   }
 
   cpf (field, value) {
     if (!this.isValidCPF(value)) {
-      this._addError(field, `${field} deve ser um CPF válido.`)
+      this._addError(field, language.current().tools.validator_cpf(field))
     }
   }
 
@@ -210,7 +212,7 @@ export default class BunValidator {
 
   cnpj (field, value) {
     if (!this.isValidCNPJ(value)) {
-      this._addError(field, `${field} deve ser um CNPJ válido.`)
+      this._addError(field, language.current().tools.validator_cnpj(field))
     }
   }
 
@@ -252,7 +254,7 @@ export default class BunValidator {
   phoneBr (field, value) {
     const phoneBrRegex = /^\(?\d{2}\)?[\s-]?[\s9]?\d{4}-?\d{4}$/
     if (typeof value !== 'string' || !phoneBrRegex.test(value)) {
-      this._addError(field, `${field} deve ser um número de telefone válido.`)
+      this._addError(field, language.current().tools.validator_phoneBr(field))
     }
   }
 }
