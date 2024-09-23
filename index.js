@@ -13,6 +13,7 @@ import bunMulter from './core/middlewares/bun-multer'
 import BunJWT from './core/tools/bun-jwt'
 import BunPassword from './core/tools/bun-password'
 import BunResponse from './core/tools/bun-response'
+import BunValidator from './core/tools/bun-validator'
 
 import BunCurrency from './core/utils/bun-currency'
 import BunDate from './core/utils/bun-date'
@@ -35,7 +36,8 @@ export default {
   tools: {
     BunJWT,
     BunPassword,
-    BunResponse
+    BunResponse,
+    BunValidator
   },
   utils: {
     BunCurrency,
