@@ -20,7 +20,11 @@ export default async function bunMulter (req) {
   const filePath = `${dest}/${id}-${file.name}`
   const buffer = await file.arrayBuffer()
   await write(filePath, buffer)
+
   req.file = buildReturnObj(filePath, file)
+
+  if (!req.data) req.data = {}
+  req.data = { ...req.data, ...getFields(formData) }
 }
 
 function buildReturnObj (filePath, file) {
@@ -30,4 +34,10 @@ function buildReturnObj (filePath, file) {
     mimetype: file.type,
     size: file.size
   }
+}
+
+function getFields (formData) {
+  const fields = Object.fromEntries(formData.entries())
+  delete fields.file
+  return fields
 }
