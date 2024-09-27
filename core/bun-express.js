@@ -33,7 +33,7 @@ export default class BunExpress {
     this.routes.DELETE[path] = handlers
   }
 
-  path (path, ...handlers) {
+  patch (path, ...handlers) {
     this.routes.PATCH[path] = handlers
   }
 
