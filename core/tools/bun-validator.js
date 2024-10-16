@@ -158,7 +158,7 @@ export default class BunValidator {
   url (field, value) {
     if (this._checkEmpty(value)) return
     try {
-      URL(value)
+      new URL(value)
     } catch (_) {
       this._addError(field, language.current().tools.validator_url(field))
     }
