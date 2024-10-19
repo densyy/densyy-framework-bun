@@ -7,11 +7,14 @@ const bunResponse = new BunResponse()
 const tokenMissingMessage = language.current().middlewares.token_1
 const tokenInvalidMessage = language.current().middlewares.token_2
 
-export default function (req, ...secrets) {
+export default async function (req, ...secrets) {
   const token = req.headers?.get('x-access-token')
   if (!token) return sendError(req, 401, tokenMissingMessage)
 
-  if (secrets.some(secret => bunJWT.verifyToken(token, secret))) return true
+  for (const secret of secrets) {
+    const result = await bunJWT.verifyToken(token, secret)
+    if (result) return true
+  }
 
   return sendError(req, 401, tokenInvalidMessage)
 }
