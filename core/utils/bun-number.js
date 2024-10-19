@@ -1,6 +1,7 @@
 export default Object.freeze(
   class BunNumber {
     toDecimal (value = 0) {
+      if (typeof value !== 'number') value = 0
       return Number(Number(value).toFixed(2))
     }
 
@@ -9,8 +10,15 @@ export default Object.freeze(
     }
 
     round (value, decimals, method) {
-      const scaleFactor = 10 ** decimals
-      return (Math[method](value * scaleFactor) / scaleFactor).toFixed(decimals)
+      const scaleFactor = Math.pow(10, decimals)
+      let scaledValue = value * scaleFactor + 1e-8
+
+      if (method === 'ceil') scaledValue = Math.ceil(scaledValue)
+      else if (method === 'floor') scaledValue = Math.floor(scaledValue)
+      else if (method === 'round') scaledValue = Math.round(scaledValue)
+
+      const result = scaledValue / scaleFactor
+      return Number(result.toFixed(decimals))
     }
 
     roundUp (value, decimals) {
