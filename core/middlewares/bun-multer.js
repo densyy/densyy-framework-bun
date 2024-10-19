@@ -1,43 +1,38 @@
 import { write } from 'bun'
 import BunString from '../utils/bun-string'
 
-export default async function bunMulter (req) {
-  const dest = '/tmp'
-  const field = 'file'
+const bunString = new BunString()
+const DEST = '/tmp'
+const FIELD = 'file'
 
-  const { method } = req
-  const contentType = req.headers?.get('Content-Type')
-
-  if (method !== 'POST') return
-  if (!contentType?.includes('multipart/form-data')) return
+export default async function (req) {
+  if (req.method !== 'POST') return
+  if (!req.headers?.get('Content-Type')?.includes('multipart/form-data')) return
 
   const formData = await req.formData()
-  const file = formData.get(field)
+  const file = formData.get(FIELD)
 
   if (!(file instanceof File)) return
 
-  const id = new BunString().generateRandomHash(16)
-  const filePath = `${dest}/${id}-${file.name}`
-  const buffer = await file.arrayBuffer()
-  await write(filePath, buffer)
+  const id = bunString.generateRandomHash(16)
+  const filePath = `${DEST}/${id}-${file.name}`
+  await write(filePath, await file.arrayBuffer())
 
   req.file = buildReturnObj(filePath, file)
-
-  if (!req.data) req.data = {}
-  req.data = { ...req.data, ...getFields(formData) }
+  req.data = { ...(req.data || {}), ...getFields(formData) }
 }
 
-function buildReturnObj (filePath, file) {
-  return {
+function buildReturnObj(filePath, file) {
+  return Object.freeze({
     path: filePath,
     originalname: file.name,
     mimetype: file.type,
     size: file.size
-  }
+  })
 }
 
-function getFields (formData) {
+function getFields(formData) {
   const fields = Object.fromEntries(formData.entries())
-  delete fields.file
+  delete fields[FIELD]
   return fields
 }

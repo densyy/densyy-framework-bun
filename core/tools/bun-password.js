@@ -1,22 +1,20 @@
 import bcrypt from 'bcryptjs'
 
-export default class BunPassword {
-  constructor () {
-    this.saltRounds = 10
-  }
+const SALT_ROUNDS = 10
 
-  async toHash (text, secret) {
-    const salt = await bcrypt.genSalt(this.saltRounds)
-    const protectedText = this._protect(text, secret)
-    return bcrypt.hash(protectedText, salt)
-  }
+export default Object.freeze(
+  class BunPassword {
+    async toHash(text, secret) {
+      const salt = await bcrypt.genSalt(SALT_ROUNDS)
+      return bcrypt.hash(this._protect(text, secret), salt)
+    }
 
-  async compare (text, hash, secret) {
-    const protectedText = this._protect(text, secret)
-    return bcrypt.compare(protectedText, hash)
-  }
+    async compare(text, hash, secret) {
+      return bcrypt.compare(this._protect(text, secret), hash)
+    }
 
-  _protect (text, secret) {
-    return text + secret
+    _protect(text, secret) {
+      return `${text}${secret}`
+    }
   }
-}
+)

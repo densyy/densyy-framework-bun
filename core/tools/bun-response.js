@@ -1,36 +1,42 @@
 import language from '../languages/index'
 
-export default class BunResponse {
-  sucess (req, message) {
-    return this._sendResponse(req, 'ok', 200, message)
-  }
+const STATUS_OK = 'ok'
+const STATUS_ERROR = 'error'
+const STATUS_CODE_SUCCESS = 200
+const STATUS_CODE_CREATED = 201
+const STATUS_CODE_SERVER_ERROR = 500
+const SERVER_ERROR_MESSAGE = language.current().tools.response_1
 
-  create (req, message) {
-    return this._sendResponse(req, 'ok', 201, message)
-  }
+export default Object.freeze(
+  class BunResponse {
+    success(req, message) {
+      return this._sendResponse(req, STATUS_OK, STATUS_CODE_SUCCESS, message)
+    }
 
-  simpleError (req, statusCode, message) {
-    return this._sendResponse(req, 'error', statusCode, message)
-  }
+    create(req, message) {
+      return this._sendResponse(req, STATUS_OK, STATUS_CODE_CREATED, message)
+    }
 
-  serverError (req) {
-    const statusCode = 500
-    const message = language.current().tools.response_1
-    return this._sendResponse(req, 'error', statusCode, message)
-  }
+    simpleError(req, statusCode, message) {
+      return this._sendResponse(req, STATUS_ERROR, statusCode, message)
+    }
 
-  empty (req) {
-    return this._sendResponse(req, 'ok', 200, null)
-  }
+    serverError(req) {
+      return this._sendResponse(req, STATUS_ERROR, STATUS_CODE_SERVER_ERROR, SERVER_ERROR_MESSAGE)
+    }
 
-  _sendResponse (req, status, statusCode, body) {
-    const headers = req.responseHeaders
-    return new Response(
-      JSON.stringify({ status, statusCode, body }),
-      {
-        status: statusCode,
-        headers
-      }
-    )
+    empty(req) {
+      return this._sendResponse(req, STATUS_OK, STATUS_CODE_SUCCESS, null)
+    }
+
+    _sendResponse(req, status, statusCode, body) {
+      return new Response(
+        JSON.stringify({ status, statusCode, body }),
+        {
+          status: statusCode,
+          headers: req.responseHeaders
+        }
+      )
+    }
   }
-}
+)

@@ -1,6 +1,7 @@
 import BunResponse from '../tools/bun-response'
 import language from '../languages/index'
 
+const bunResponse = new BunResponse()
 const regexMongoId = /^[0-9a-fA-F]{24}$/
 
 export default function (req) {
@@ -8,7 +9,7 @@ export default function (req) {
 
   if (ids.length && ids.every(id => regexMongoId.test(id))) return true
 
-  return new BunResponse().simpleError(req, 406, language.current().middlewares.ids_1)
+  return bunResponse.simpleError(req, 406, language.current().middlewares.ids_1)
 }
 
 function extractIds(params = {}) {
