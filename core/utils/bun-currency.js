@@ -1,22 +1,25 @@
-export default class BunCurrency {
-  constructor (value) {
-    this.value = Number(value)
-  }
+const formatters = Object.freeze({
+  'pt-BR': new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }),
+  'en-US': new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }),
+  'fr-FR': new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' })
+})
 
-  toReal () {
-    return this._format('pt-BR', 'BRL')
-  }
+export default Object.freeze(
+  class BunCurrency {
+    constructor(value) {
+      this.value = Number(value)
+    }
 
-  toDollar () {
-    return this._format('en-US', 'USD')
-  }
+    toReal() {
+      return formatters['pt-BR'].format(this.value)
+    }
 
-  toEuro () {
-    return this._format('fr-FR', 'EUR')
-  }
+    toDollar() {
+      return formatters['en-US'].format(this.value)
+    }
 
-  _format (language, currency) {
-    const options = { style: 'currency', currency }
-    return new Intl.NumberFormat(language, options).format(this.value)
+    toEuro() {
+      return formatters['fr-FR'].format(this.value)
+    }
   }
-}
+)

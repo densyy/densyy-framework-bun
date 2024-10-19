@@ -1,23 +1,24 @@
-export default class BunNumber {
-  toDecimal (value = 0) {
-    const newValue = Number(value).toFixed(2)
-    return Number(newValue)
-  }
+export default Object.freeze(
+  class BunNumber {
+    toDecimal(value = 0) {
+      return Number(Number(value).toFixed(2))
+    }
 
-  random (min, max) {
-    const random = Math.random() * (max - min + 1)
-    return Math.floor(random) + min
-  }
+    random(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min
+    }
 
-  roundUp (value, decimals) {
-    const scaleFactor = Math.pow(10, decimals)
-    const scaleVector = value * scaleFactor
-    return (Math.ceil(scaleVector) / scaleFactor).toFixed(decimals)
-  }
+    round(value, decimals, method) {
+      const scaleFactor = 10 ** decimals
+      return (Math[method](value * scaleFactor) / scaleFactor).toFixed(decimals)
+    }
 
-  roundDown (value, decimals) {
-    const scaleFactor = Math.pow(10, decimals)
-    const scaleVector = value * scaleFactor
-    return (Math.floor(scaleVector) / scaleFactor).toFixed(decimals)
+    roundUp(value, decimals) {
+      return this.round(value, decimals, 'ceil')
+    }
+
+    roundDown(value, decimals) {
+      return this.round(value, decimals, 'floor')
+    }
   }
-}
+)

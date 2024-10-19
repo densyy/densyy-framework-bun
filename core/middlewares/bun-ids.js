@@ -1,23 +1,16 @@
 import BunResponse from '../tools/bun-response'
 import language from '../languages/index'
 
-export default function bunIds (req) {
-  const bunResponse = new BunResponse()
-  const params = req.params || {}
-  const ids = extractIds(params)
+const regexMongoId = /^[0-9a-fA-F]{24}$/
 
-  if (areValidIds(ids)) return true
+export default function (req) {
+  const ids = extractIds(req.params)
 
-  return bunResponse.simpleError(req, 406, language.current().middlewares.ids_1)
+  if (ids.length && ids.every(id => regexMongoId.test(id))) return true
+
+  return new BunResponse().simpleError(req, 406, language.current().middlewares.ids_1)
 }
 
-function extractIds (params = {}) {
-  return Object.entries(params)
-    .filter(([key]) => /^id.*/.test(key))
-    .map(([_key, value]) => value)
-}
-
-function areValidIds (ids) {
-  const regexMongoId = /^[0-9a-fA-F]{24}$/
-  return ids.every(id => regexMongoId.test(id))
+function extractIds(params = {}) {
+  return Object.values(params).filter((_, key) => /^id.*/.test(key))
 }

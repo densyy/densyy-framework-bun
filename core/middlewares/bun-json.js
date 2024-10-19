@@ -1,10 +1,9 @@
-export default async function bunJson (req) {
-  const { method } = req
+const allowedMethods = new Set(['POST', 'PUT', 'PATCH'])
+
+export default async function (req) {
   const contentType = req.headers?.get('Content-Type')
 
-  if (method !== 'POST' && method !== 'PUT' && method !== 'PATCH') return
-  if (!contentType?.includes('application/json')) return
+  if (!allowedMethods.has(req.method) || !contentType?.includes('application/json')) return
 
-  const json = await req.json()
-  req.data = json
+  req.data = await req.json()
 }
