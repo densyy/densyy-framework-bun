@@ -16,7 +16,7 @@ describe('Middleware bun-token', () => {
   it('deve retornar erro quando o token está ausente', async () => {
     const req = { headers: new Map([]) }
 
-    const response = bunTokenMiddleware(req)
+    const response = await bunTokenMiddleware(req)
     const body = await getResponseBody(response)
 
     expect(response.status).toBe(401)
@@ -32,7 +32,7 @@ describe('Middleware bun-token', () => {
     }
 
     const secret = 'segredo_correto'
-    const response = bunTokenMiddleware(req, secret)
+    const response = await bunTokenMiddleware(req, secret)
     const body = await getResponseBody(response)
 
     expect(response.status).toBe(401)
@@ -41,7 +41,7 @@ describe('Middleware bun-token', () => {
     expect(body.body).toBe(tokenInvalidMessage)
   })
 
-  it('deve retornar true quando o token é válido', () => {
+  it('deve retornar true quando o token é válido', async () => {
     const payload = { idUsuario: 123 }
     const secret = 'segredo_correto'
     const token = bunJWT.generateToken(payload, secret)
@@ -51,12 +51,12 @@ describe('Middleware bun-token', () => {
       responseHeaders: new Headers()
     }
 
-    const result = bunTokenMiddleware(req, secret)
+    const result = await bunTokenMiddleware(req, secret)
 
     expect(result).toBe(true)
   })
 
-  it('deve autenticar com um dos múltiplos segredos', () => {
+  it('deve autenticar com um dos múltiplos segredos', async () => {
     const payload = { idUsuario: 456 }
     const secret1 = 'segredo1'
     const secret2 = 'segredo2'
@@ -67,7 +67,7 @@ describe('Middleware bun-token', () => {
       responseHeaders: new Headers()
     }
 
-    const result = bunTokenMiddleware(req, secret1, secret2)
+    const result = await bunTokenMiddleware(req, secret1, secret2)
 
     expect(result).toBe(true)
   })
@@ -82,7 +82,7 @@ describe('Middleware bun-token', () => {
     }
 
     const secret = 'segredo_correto'
-    const response = bunTokenMiddleware(req, secret)
+    const response = await bunTokenMiddleware(req, secret)
     const body = await getResponseBody(response)
 
     expect(response.status).toBe(401)
