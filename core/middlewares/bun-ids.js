@@ -13,5 +13,7 @@ export default function (req) {
 }
 
 function extractIds (params = {}) {
-  return Object.values(params).filter((_, key) => /^id.*/.test(key))
+  return Object.entries(params)
+    .filter(([key]) => /^id.*/.test(key))
+    .map(([, value]) => value)
 }
