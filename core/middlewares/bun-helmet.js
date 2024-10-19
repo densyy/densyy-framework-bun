@@ -1,12 +1,21 @@
-export default function bunHelmet (req) {
-  req.responseHeaders.append('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
+const securityHeaders = Object.freeze(
+  new Map([
+    ['Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload'],
+    ['Cache-Control', 'no-store, no-cache, must-revalidate, private'],
+    ['Pragma', 'no-cache'],
+    ['Expires', '0'],
+    ['X-Content-Type-Options', 'nosniff']
+  ])
+)
 
-  req.responseHeaders.append('Cache-Control', 'no-store, no-cache, must-revalidate, private')
-  req.responseHeaders.append('Pragma', 'no-cache')
-  req.responseHeaders.append('Expires', '0')
+const headersToDelete = Object.freeze(
+  ['X-Powered-By', 'Server', 'ETag']
+)
 
-  req.responseHeaders.append('X-Content-Type-Options', 'nosniff')
-  req.responseHeaders.delete('X-Powered-By')
-  req.responseHeaders.delete('Server')
-  req.responseHeaders.delete('ETag')
+export default function (req) {
+  securityHeaders.forEach((value, header) => {
+    req.responseHeaders.set(header, value)
+  })
+
+  headersToDelete.forEach(header => req.responseHeaders.delete(header))
 }

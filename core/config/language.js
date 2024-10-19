@@ -1,27 +1,24 @@
+const instanceData = new WeakMap()
+
 class Singleton {
   constructor () {
-    if (Singleton.instance) {
-      return Singleton.instance
-    }
+    if (Singleton.instance) return Singleton.instance
 
-    this.data = {}
+    instanceData.set(this, { language: 'en_US' })
     Singleton.instance = this
+    Object.freeze(this)
   }
 
   set (value) {
-    const allowed = ['pt_BR', 'en_US']
-    if (!allowed.includes(value)) throw new Error('Language Error')
-
-    this.data.language = value
+    if (!['pt_BR', 'en_US'].includes(value)) throw new Error('Language Error')
+    instanceData.get(this).language = value
   }
 
   get () {
-    const defaultLanguage = 'en_US'
-    return this.data?.language || defaultLanguage
+    return instanceData.get(this).language
   }
 }
 
 const instance = new Singleton()
-Object.freeze(instance)
 
 export default instance

@@ -2,13 +2,16 @@ import languageSingleton from '../config/language'
 import ptBR from './pt-BR'
 import enUS from './en-US'
 
-export default {
+const languages = Object.freeze({
+  en_US: enUS,
+  pt_BR: ptBR
+})
+
+export default Object.freeze({
   data: languageSingleton,
-  current: () => getCurrentLanguage()
-}
+  current: getCurrentLanguage
+})
 
 function getCurrentLanguage () {
-  const language = languageSingleton.get()
-  if (language === 'en_US') return enUS
-  if (language === 'pt_BR') return ptBR
+  return languages[languageSingleton.get()] || languages.en_US
 }

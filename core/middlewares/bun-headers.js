@@ -1,4 +1,7 @@
-export default function bunHeaders (req) {
-  req.responseHeaders = new Headers()
-  req.responseHeaders.append('Content-Type', 'application/json')
+const defaultHeaders = Object.freeze(
+  new Headers({ 'Content-Type': 'application/json' })
+)
+
+export default function (req) {
+  req.responseHeaders = defaultHeaders
 }
