@@ -12,6 +12,6 @@ export default function (req) {
   return bunResponse.simpleError(req, 406, language.current().middlewares.ids_1)
 }
 
-function extractIds(params = {}) {
+function extractIds (params = {}) {
   return Object.values(params).filter((_, key) => /^id.*/.test(key))
 }

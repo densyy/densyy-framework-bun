@@ -16,6 +16,6 @@ export default function (req, ...secrets) {
   return sendError(req, 401, tokenInvalidMessage)
 }
 
-function sendError(req, statusCode, message) {
+function sendError (req, statusCode, message) {
   return bunResponse.simpleError(req, statusCode, message)
 }

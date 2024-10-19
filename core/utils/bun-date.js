@@ -1,10 +1,10 @@
 export default Object.freeze(
   class BunDate {
-    constructor() {
+    constructor () {
       this.currentDate = new Date()
     }
 
-    now() {
+    now () {
       return this.currentDate
     }
 
@@ -12,25 +12,25 @@ export default Object.freeze(
     // ADD
     //
 
-    _adjustDate(unit, value) {
+    _adjustDate (unit, value) {
       const newDate = new Date(this.currentDate)
       newDate[`set${unit}`](newDate[`get${unit}`]() + value)
       return newDate
     }
 
-    addHours(hours) {
+    addHours (hours) {
       return this._adjustDate('Hours', hours)
     }
 
-    addDays(days) {
+    addDays (days) {
       return this._adjustDate('Date', days)
     }
 
-    addMonths(months) {
+    addMonths (months) {
       return this._adjustDate('Month', months)
     }
 
-    addYears(years) {
+    addYears (years) {
       return this._adjustDate('FullYear', years)
     }
 
@@ -38,15 +38,15 @@ export default Object.freeze(
     // PRINT
     //
 
-    printDateBR() {
+    printDateBR () {
       return this._format('dd/MM/yyyy')
     }
 
-    printDateTimeBR() {
+    printDateTimeBR () {
       return this._format('dd/MM/yyyy HH:mm:ss')
     }
 
-    printDateUSA() {
+    printDateUSA () {
       return this._format('yyyy-MM-dd')
     }
 
@@ -54,21 +54,21 @@ export default Object.freeze(
     // CONVERT
     //
 
-    dateStringBRtoDate(dateString) {
+    dateStringBRtoDate (dateString) {
       const [day, month, year] = dateString.split('/').map(Number)
       return new Date(year, month - 1, day)
     }
 
-    dateStringUSAtoDate(dateString) {
+    dateStringUSAtoDate (dateString) {
       const [year, month, day] = dateString.split('-').map(Number)
       return new Date(year, month - 1, day)
     }
 
-    dataObjtoDate(year, month, day = 1) {
+    dataObjtoDate (year, month, day = 1) {
       return new Date(year, month - 1, day)
     }
 
-    _format(format = 'dd/MM/yyyy HH:mm:ss') {
+    _format (format = 'dd/MM/yyyy HH:mm:ss') {
       const date = this.currentDate
       const components = {
         dd: date.getDate().toString().padStart(2, '0'),

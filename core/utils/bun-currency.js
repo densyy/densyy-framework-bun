@@ -6,19 +6,19 @@ const formatters = Object.freeze({
 
 export default Object.freeze(
   class BunCurrency {
-    constructor(value) {
+    constructor (value) {
       this.value = Number(value)
     }
 
-    toReal() {
+    toReal () {
       return formatters['pt-BR'].format(this.value)
     }
 
-    toDollar() {
+    toDollar () {
       return formatters['en-US'].format(this.value)
     }
 
-    toEuro() {
+    toEuro () {
       return formatters['fr-FR'].format(this.value)
     }
   }

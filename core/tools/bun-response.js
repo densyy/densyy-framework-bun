@@ -9,27 +9,27 @@ const SERVER_ERROR_MESSAGE = language.current().tools.response_1
 
 export default Object.freeze(
   class BunResponse {
-    success(req, message) {
+    success (req, message) {
       return this._sendResponse(req, STATUS_OK, STATUS_CODE_SUCCESS, message)
     }
 
-    create(req, message) {
+    create (req, message) {
       return this._sendResponse(req, STATUS_OK, STATUS_CODE_CREATED, message)
     }
 
-    simpleError(req, statusCode, message) {
+    simpleError (req, statusCode, message) {
       return this._sendResponse(req, STATUS_ERROR, statusCode, message)
     }
 
-    serverError(req) {
+    serverError (req) {
       return this._sendResponse(req, STATUS_ERROR, STATUS_CODE_SERVER_ERROR, SERVER_ERROR_MESSAGE)
     }
 
-    empty(req) {
+    empty (req) {
       return this._sendResponse(req, STATUS_OK, STATUS_CODE_SUCCESS, null)
     }
 
-    _sendResponse(req, status, statusCode, body) {
+    _sendResponse (req, status, statusCode, body) {
       return new Response(
         JSON.stringify({ status, statusCode, body }),
         {

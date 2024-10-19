@@ -22,7 +22,7 @@ export default async function (req) {
   req.data = { ...(req.data || {}), ...getFields(formData) }
 }
 
-function buildReturnObj(filePath, file) {
+function buildReturnObj (filePath, file) {
   return Object.freeze({
     path: filePath,
     originalname: file.name,
@@ -31,7 +31,7 @@ function buildReturnObj(filePath, file) {
   })
 }
 
-function getFields(formData) {
+function getFields (formData) {
   const fields = Object.fromEntries(formData.entries())
   delete fields[FIELD]
   return fields
