@@ -3,7 +3,7 @@ import corsMiddleware from '../core/middlewares/bun-cors'
 
 test('Middleware CORS deve definir corretamente os headers', () => {
   const mockRequest = {
-    responseHeaders: new Map(),
+    responseHeaders: new Map()
   }
 
   corsMiddleware(mockRequest)

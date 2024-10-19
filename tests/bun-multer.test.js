@@ -23,7 +23,6 @@ test('Middleware deve processar upload de arquivo corretamente', async () => {
   expect(mockRequest.file.mimetype).toContain('text/plain')
   expect(mockRequest.file.size).toBeGreaterThan(17)
   expect(mockRequest.data).toEqual({})
-
 })
 
 test('Middleware deve ignorar requisições não-POST', async () => {

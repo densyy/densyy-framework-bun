@@ -2,7 +2,7 @@ import { test, expect } from 'bun:test'
 import bunIdsMiddleware from '../core/middlewares/bun-ids.js'
 import language from '../core/languages/index'
 
-async function getResponseBody(response) {
+async function getResponseBody (response) {
   const text = await response.text()
   return JSON.parse(text)
 }

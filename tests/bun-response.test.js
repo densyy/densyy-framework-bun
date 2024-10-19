@@ -12,7 +12,7 @@ const STATUS_CODE_SERVER_ERROR = 500
 
 const bunResponse = new BunResponse()
 
-async function getResponseBody(response) {
+async function getResponseBody (response) {
   const text = await response.text()
   return JSON.parse(text)
 }

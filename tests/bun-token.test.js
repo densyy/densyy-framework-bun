@@ -7,7 +7,7 @@ const bunJWT = new BunJWT()
 const tokenMissingMessage = language.current().middlewares.token_1
 const tokenInvalidMessage = language.current().middlewares.token_2
 
-async function getResponseBody(response) {
+async function getResponseBody (response) {
   const text = await response.text()
   return JSON.parse(text)
 }
@@ -64,7 +64,7 @@ describe('Middleware bun-token', () => {
 
     const req = {
       headers: new Headers({ 'x-access-token': token }),
-      responseHeaders: new Headers(),
+      responseHeaders: new Headers()
     }
 
     const result = bunTokenMiddleware(req, secret1, secret2)
@@ -78,7 +78,7 @@ describe('Middleware bun-token', () => {
 
     const req = {
       headers: new Headers({ 'x-access-token': token }),
-      responseHeaders: new Headers(),
+      responseHeaders: new Headers()
     }
 
     const secret = 'segredo_correto'
