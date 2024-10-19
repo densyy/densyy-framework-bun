@@ -1,286 +1,204 @@
 import language from '../languages/index'
 
-export default class BunValidator {
-  constructor (rules) {
-    this.rules = rules
-    this.errors = {}
-  }
+const REGEX = Object.freeze({
+  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  hex: /^[0-9a-fA-F]+$/,
+  slug: /^[0-9a-z-]+$/,
+  phoneBr: /^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/
+})
 
-  validate (data) {
-    this.errors = {}
-    for (const field in this.rules) {
-      const rules = this.rules[field].split('|')
-      this._validateField(data, field, rules)
-    }
-  }
+const getMessages = () => language.current().tools.validator
 
-  _validateField (data, fieldPath, rules) {
-    const values = this._getValuesByPath(data, fieldPath)
-
-    if (values.length === 0) values.push({ value: undefined, path: fieldPath })
-
-    for (const valueObj of values) {
-      const { value, path } = valueObj
-
-      for (const rule of rules) {
-        const [ruleName, ruleParam] = rule.split(':')
-        const methodName = ruleName
-
-        if (typeof this[methodName] === 'function') this[methodName](path, value, ruleParam)
-        else console.warn(`Unsupported validation: ${ruleName}`)
-      }
-    }
-  }
-
-  _getValuesByPath (data, path) {
-    const parts = path.split('.')
-    const values = []
-    this._extractValues(data, parts, '', values)
-    return values
-  }
-
-  _extractValues (current, parts, currentPath, values) {
-    if (parts.length === 0) {
-      values.push({ value: current, path: currentPath.slice(1) })
-      return
+export default Object.freeze(
+  class BunValidator {
+    constructor (rules) {
+      this.rules = rules
+      this.errors = {}
     }
 
-    const [part, ...rest] = parts
-    if (part === '*') {
-      if (Array.isArray(current)) {
-        current.forEach((item, index) => {
-          this._extractValues(item, rest, `${currentPath}.${index}`, values)
+    async validate (data) {
+      this.errors = {}
+      await Promise.all(
+        Object.entries(this.rules).map(async ([field, ruleString]) => {
+          const rules = ruleString.split('|')
+          await this._validateField(data, field, rules)
         })
+      )
+    }
+
+    async _validateField (data, fieldPath, rules) {
+      const values = this._getValuesByPath(data, fieldPath) || [{ value: undefined, path: fieldPath }]
+      for (const { value, path } of values) {
+        for (const rule of rules) {
+          const [ruleName, ruleParam] = rule.split(':')
+          const method = this[ruleName]
+          if (typeof method === 'function') method.call(this, path, value, ruleParam)
+        }
       }
-    } else {
-      if (current && Object.prototype.hasOwnProperty.call(current, part)) {
+    }
+
+    _getValuesByPath (data, path) {
+      const parts = path.split('.')
+      const values = []
+      this._extractValues(data, parts, '', values)
+      return values
+    }
+
+    _extractValues (current, parts, currentPath, values) {
+      if (!parts.length) {
+        values.push({ value: current, path: currentPath.slice(1) })
+        return
+      }
+      const [part, ...rest] = parts
+      if (part === '*' && Array.isArray(current)) {
+        for (const [index, item] of current.entries()) {
+          this._extractValues(item, rest, `${currentPath}.${index}`, values)
+        }
+      } else if (current?.hasOwnProperty(part)) {
         this._extractValues(current[part], rest, `${currentPath}.${part}`, values)
       }
     }
-  }
 
-  //
-  // ERRORS
-  //
-
-  firstError () {
-    for (const field in this.errors) {
-      if (this.errors[field].length > 0) return this.errors[field][0]
+    firstError () {
+      return Object.values(this.errors).flat()[0] || null
     }
-    return null
-  }
 
-  _addError (field, message) {
-    if (!this.errors[field]) this.errors[field] = []
-    this.errors[field].push(message)
-  }
-
-  //
-  // RULES
-  //
-
-  _checkEmpty (value) {
-    if (value === undefined) return true
-    if (value === null) return true
-    return false
-  }
-
-  required (field, value) {
-    if (value === undefined || value === null || value === '') {
-      this._addError(field, language.current().tools.validator.required(field))
+    _addError (field, message) {
+      (this.errors[field] ??= []).push(message)
     }
-  }
 
-  min (field, value, minValue) {
-    if (this._checkEmpty(value)) return
-    if (value < Number(minValue)) {
-      this._addError(field, language.current().tools.validator.min(field, minValue))
+    _checkEmpty (value) {
+      return value == null || value === ''
     }
-  }
 
-  max (field, value, maxValue) {
-    if (this._checkEmpty(value)) return
-    if (value > Number(maxValue)) {
-      this._addError(field, language.current().tools.validator.max(field, maxValue))
+    required (field, value) {
+      if (this._checkEmpty(value)) this._addError(field, getMessages().required(field))
     }
-  }
 
-  minLength (field, value, minLength) {
-    if (this._checkEmpty(value)) return
-    if (value.length < Number(minLength)) {
-      this._addError(field, language.current().tools.validator.minLength(field, minLength))
-    }
-  }
-
-  maxLength (field, value, maxLength) {
-    if (this._checkEmpty(value)) return
-    if (value.length > Number(maxLength)) {
-      this._addError(field, language.current().tools.validator.maxLength(field, maxLength))
-    }
-  }
-
-  number (field, value) {
-    if (this._checkEmpty(value)) return
-    if (typeof value !== 'number') {
-      this._addError(field, language.current().tools.validator.number(field))
-    }
-  }
-
-  string (field, value) {
-    if (this._checkEmpty(value)) return
-    if (typeof value !== 'string') {
-      this._addError(field, language.current().tools.validator.string(field))
-    }
-  }
-
-  array (field, value) {
-    if (this._checkEmpty(value)) return
-    if (!Array.isArray(value)) {
-      this._addError(field, language.current().tools.validator.array(field))
-    }
-  }
-
-  boolean (field, value) {
-    if (this._checkEmpty(value)) return
-    if (typeof value !== 'boolean') {
-      this._addError(field, language.current().tools.validator.boolean(field))
-    }
-  }
-
-  email (field, value) {
-    if (this._checkEmpty(value)) return
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(value)) {
-      this._addError(field, language.current().tools.validator.email(field))
-    }
-  }
-
-  url (field, value) {
-    if (this._checkEmpty(value)) return
-    try {
-      new URL(value)
-    } catch (_) {
-      this._addError(field, language.current().tools.validator.url(field))
-    }
-  }
-
-  date (field, value) {
-    if (this._checkEmpty(value)) return
-    if (isNaN(Date.parse(value))) {
-      this._addError(field, language.current().tools.validator.date(field))
-    }
-  }
-
-  size (field, value, sizeValue) {
-    if (this._checkEmpty(value)) return
-    const size = Number(sizeValue)
-    if (typeof value === 'string' || Array.isArray(value)) {
-      if (value.length !== size) {
-        this._addError(field, language.current().tools.validator.size(field, size))
+    min (field, value, minValue) {
+      minValue = +minValue
+      if (!this._checkEmpty(value) && value < minValue) {
+        this._addError(field, getMessages().min(field, minValue))
       }
-    } else {
-      this._addError(field, language.current().tools.validator.size_error(field))
-    }
-  }
-
-  hex (field, value) {
-    if (this._checkEmpty(value)) return
-    const hexRegex = /^[0-9a-fA-F]+$/
-    if (typeof value !== 'string' || !hexRegex.test(value)) {
-      this._addError(field, language.current().tools.validator.hex(field))
-    }
-  }
-
-  in (field, value, allowedValues) {
-    if (this._checkEmpty(value)) return
-    const valuesArray = allowedValues.split(',')
-    if (!valuesArray.includes(value)) {
-      this._addError(field, language.current().tools.validator.in(field, allowedValues))
-    }
-  }
-
-  slug (field, value) {
-    if (this._checkEmpty(value)) return
-    const slugRegex = /^[0-9a-z-]+$/
-    if (typeof value !== 'string' || !slugRegex.test(value)) {
-      this._addError(field, language.current().tools.validator.slug(field))
-    }
-  }
-
-  cpf (field, value) {
-    if (this._checkEmpty(value)) return
-    if (!this.isValidCPF(value)) {
-      this._addError(field, language.current().tools.validator.cpf(field))
-    }
-  }
-
-  isValidCPF (cpf) {
-    cpf = cpf.replace(/[^\d]+/g, '')
-    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false
-
-    let sum = 0
-    let rest
-    for (let i = 1; i <= 9; i++) sum += parseInt(cpf.substring(i - 1, i)) * (11 - i)
-    rest = (sum * 10) % 11
-    if (rest === 10 || rest === 11) rest = 0
-    if (rest !== parseInt(cpf.substring(9, 10))) return false
-
-    sum = 0
-    for (let i = 1; i <= 10; i++) sum += parseInt(cpf.substring(i - 1, i)) * (12 - i)
-    rest = (sum * 10) % 11
-    if (rest === 10 || rest === 11) rest = 0
-    if (rest !== parseInt(cpf.substring(10, 11))) return false
-
-    return true
-  }
-
-  cnpj (field, value) {
-    if (this._checkEmpty(value)) return
-    if (!this.isValidCNPJ(value)) {
-      this._addError(field, language.current().tools.validator.cnpj(field))
-    }
-  }
-
-  isValidCNPJ (cnpj) {
-    cnpj = cnpj.replace(/[^\d]+/g, '')
-    if (cnpj.length !== 14) return false
-    if (/^(\d)\1{13}$/.test(cnpj)) return false
-
-    let length = cnpj.length - 2
-    let numbers = cnpj.substring(0, length)
-    const digits = cnpj.substring(length)
-    let sum = 0
-    let pos = length - 7
-
-    for (let i = length; i >= 1; i--) {
-      sum += parseInt(numbers.charAt(length - i)) * pos--
-      if (pos < 2) pos = 9
     }
 
-    let result = sum % 11 < 2 ? 0 : 11 - (sum % 11)
-    if (result !== parseInt(digits.charAt(0))) return false
-
-    length += 1
-    numbers = cnpj.substring(0, length)
-    sum = 0
-    pos = length - 7
-
-    for (let i = length; i >= 1; i--) {
-      sum += parseInt(numbers.charAt(length - i)) * pos--
-      if (pos < 2) pos = 9
+    max (field, value, maxValue) {
+      maxValue = +maxValue
+      if (!this._checkEmpty(value) && value > maxValue) {
+        this._addError(field, getMessages().max(field, maxValue))
+      }
     }
 
-    result = sum % 11 < 2 ? 0 : 11 - (sum % 11)
-    if (result !== parseInt(digits.charAt(1))) return false
+    minLength (field, value, minLength) {
+      minLength = +minLength
+      if (!this._checkEmpty(value) && value.length < minLength) {
+        this._addError(field, getMessages().minLength(field, minLength))
+      }
+    }
 
-    return true
-  }
+    maxLength (field, value, maxLength) {
+      maxLength = +maxLength
+      if (!this._checkEmpty(value) && value.length > maxLength) {
+        this._addError(field, getMessages().maxLength(field, maxLength))
+      }
+    }
 
-  phoneBr (field, value) {
-    if (this._checkEmpty(value)) return
-    const phoneBrRegex = /^\(?\d{2}\)?[\s-]?[\s9]?\d{4}-?\d{4}$/
-    if (typeof value !== 'string' || !phoneBrRegex.test(value)) {
-      this._addError(field, language.current().tools.validator.phoneBr(field))
+    number (field, value) {
+      if (!this._checkEmpty(value) && isNaN(Number(value))) {
+        this._addError(field, getMessages().number(field))
+      }
+    }
+
+    string (field, value) {
+      if (!this._checkEmpty(value) && typeof value !== 'string') {
+        this._addError(field, getMessages().string(field))
+      }
+    }
+
+    boolean (field, value) {
+      if (!this._checkEmpty(value) && typeof value !== 'boolean') {
+        this._addError(field, getMessages().boolean(field))
+      }
+    }
+
+    email (field, value) {
+      if (!this._checkEmpty(value) && !REGEX.email.test(value)) {
+        this._addError(field, getMessages().email(field))
+      }
+    }
+
+    url (field, value) {
+      try {
+        new URL(value)
+      } catch {
+        this._addError(field, getMessages().url(field))
+      }
+    }
+
+    date (field, value) {
+      if (!this._checkEmpty(value) && isNaN(Date.parse(value))) {
+        this._addError(field, getMessages().date(field))
+      }
+    }
+
+    size (field, value, sizeValue) {
+      sizeValue = +sizeValue
+      if (this._checkEmpty(value)) return
+      if ((typeof value === 'string' || Array.isArray(value)) && value.length !== sizeValue) {
+        this._addError(field, getMessages().size(field, sizeValue))
+      } else {
+        this._addError(field, getMessages().size_error(field))
+      }
+    }
+
+    hex (field, value) {
+      if (!this._checkEmpty(value) && !REGEX.hex.test(value)) {
+        this._addError(field, getMessages().hex(field))
+      }
+    }
+
+    in (field, value, allowedValues) {
+      if (!this._checkEmpty(value) && !allowedValues.split(',').includes(value)) {
+        this._addError(field, getMessages().in(field, allowedValues))
+      }
+    }
+
+    slug (field, value) {
+      if (!this._checkEmpty(value) && !REGEX.slug.test(value)) {
+        this._addError(field, getMessages().slug(field))
+      }
+    }
+
+    cpf (field, value) {
+      if (!this._checkEmpty(value) && !this.isValidCPF(value)) {
+        this._addError(field, getMessages().cpf(field))
+      }
+    }
+
+    isValidCPF (cpf) {
+      cpf = cpf.replace(/\D/g, '')
+      if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false
+      const calc = (n) => [...cpf].slice(0, n).reduce((s, d, i) => s + d * (n + 1 - i), 0) * 10 % 11 % 10
+      return calc(9) === +cpf[9] && calc(10) === +cpf[10]
+    }
+
+    cnpj (field, value) {
+      if (!this._checkEmpty(value) && !this.isValidCNPJ(value)) {
+        this._addError(field, getMessages().cnpj(field))
+      }
+    }
+
+    isValidCNPJ (cnpj) {
+      cnpj = cnpj.replace(/\D/g, '')
+      if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false
+      const calc = (n) => [...cnpj].slice(0, n).reduce((s, d, i) => s + d * (n - 7 < i ? 9 - i % 8 : i + 1), 0) % 11 % 10
+      return calc(12) === +cnpj[12] && calc(13) === +cnpj[13]
+    }
+
+    phoneBr (field, value) {
+      if (!this._checkEmpty(value) && !REGEX.phoneBr.test(value)) {
+        this._addError(field, getMessages().phoneBr(field))
+      }
     }
   }
-}
+)

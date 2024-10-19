@@ -1,17 +1,17 @@
 import jwt from 'jsonwebtoken'
 
-export default class BunJWT {
-  generateToken (payload, secret, expiresIn = '7d') {
-    const options = { expiresIn }
-    return jwt.sign({ data: payload }, secret, options)
-  }
+export default Object.freeze(
+  class BunJWT {
+    generateToken (payload, secret, expiresIn = '7d') {
+      return jwt.sign({ data: payload }, secret, { expiresIn })
+    }
 
-  verifyToken (token, secret) {
-    const suppressCallback = (_error, data) => data
-    return jwt.verify(token, secret, null, suppressCallback)
-  }
+    verifyToken (token, secret) {
+      return jwt.verify(token, secret, (_error, data) => data)
+    }
 
-  getData (token) {
-    return jwt.decode(token)
+    getData (token) {
+      return jwt.decode(token)
+    }
   }
-}
+)
