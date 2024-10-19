@@ -9,36 +9,34 @@ const accents = {
 
 const allowedChars = 'abcdefghijklmnopqrstuvwxyz0123456789'
 
-export default Object.freeze(
-  class BunString {
-    removeAccents (content) {
-      return Array.from(content, char => accents[char] || char).join('')
-    }
-
-    toSlug (content) {
-      return this.removeAccents(content.toLowerCase().trim())
-        .replace(/[^a-z0-9\s-_]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/_+/g, '-')
-        .replace(/-+/g, '-')
-    }
-
-    capitalizeFirstLetter (content) {
-      return content.charAt(0).toUpperCase() + content.slice(1).toLowerCase()
-    }
-
-    toTitleCase (content) {
-      return content
-        .toLowerCase()
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
-    }
-
-    generateRandomHash (length) {
-      return Array.from({ length }, () =>
-        allowedChars.charAt(Math.floor(Math.random() * allowedChars.length))
-      ).join('')
-    }
+export default class BunString {
+  removeAccents (content) {
+    return Array.from(content, char => accents[char] || char).join('')
   }
-)
+
+  toSlug (content) {
+    return this.removeAccents(content.toLowerCase().trim())
+      .replace(/[^a-z0-9\s-_]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/_+/g, '-')
+      .replace(/-+/g, '-')
+  }
+
+  capitalizeFirstLetter (content) {
+    return content.charAt(0).toUpperCase() + content.slice(1).toLowerCase()
+  }
+
+  toTitleCase (content) {
+    return content
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+  }
+
+  generateRandomHash (length) {
+    return Array.from({ length }, () =>
+      allowedChars.charAt(Math.floor(Math.random() * allowedChars.length))
+    ).join('')
+  }
+}
