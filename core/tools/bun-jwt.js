@@ -7,7 +7,12 @@ export default Object.freeze(
     }
 
     verifyToken (token, secret) {
-      return jwt.verify(token, secret, (_error, data) => data)
+      return new Promise((resolve) => {
+        jwt.verify(token, secret, (error, data) => {
+          if (error) resolve(false)
+          else resolve(data)
+        })
+      })
     }
 
     getData (token) {
