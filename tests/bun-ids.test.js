@@ -1,7 +1,11 @@
-import { test, expect, spyOn } from 'bun:test'
+import { test, expect } from 'bun:test'
 import bunIdsMiddleware from '../core/middlewares/bun-ids.js'
-import BunResponse from '../core/tools/bun-response'
 import language from '../core/languages/index'
+
+async function getResponseBody(response) {
+  const text = await response.text()
+  return JSON.parse(text)
+}
 
 test('Middleware deve retornar true para IDs válidos', () => {
   const mockRequest = {
@@ -12,20 +16,15 @@ test('Middleware deve retornar true para IDs válidos', () => {
   expect(result).toBe(true)
 })
 
-test('Middleware deve retornar erro para IDs inválidos', () => {
-  const mockRequest = {
-    params: { id1: 'invalid-id', id2: '123' }
-  }
+test('Middleware deve retornar erro para IDs inválidos', async () => {
+  const mockRequest = { params: { id1: 'invalid-id', id2: '123' } }
 
-  const bunResponseSpy = spyOn(BunResponse.prototype, 'simpleError')
+  const response = bunIdsMiddleware(mockRequest)
+  const body = await getResponseBody(response)
 
-  bunIdsMiddleware(mockRequest)
-
-  expect(bunResponseSpy).toHaveBeenCalledWith(
-    mockRequest,
-    406,
-    language.current().middlewares.ids_1
-  )
-
-  BunResponse.prototype.simpleError = bunResponseSpy.original
+  expect(body).toEqual({
+    statusCode: 406,
+    status: 'error',
+    body: language.current().middlewares.ids_1
+  })
 })
