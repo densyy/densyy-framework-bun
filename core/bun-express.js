@@ -3,94 +3,113 @@ import language from './languages/index'
 import { serve } from 'bun'
 
 const bunResponse = new BunResponse()
-const ALLOWED_METHODS = new Set(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
+const ALLOWED_METHODS = Object.freeze(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
+const getMessages = () => language.current()
 
 export default Object.freeze(
   class BunExpress {
-    constructor () {
-      this.routes = new Map([
-        ['GET', new Map()],
-        ['POST', new Map()],
-        ['PUT', new Map()],
-        ['DELETE', new Map()],
-        ['PATCH', new Map()]
-      ])
+    constructor() {
+      this.routes = this._initializeRoutes()
       this.middlewares = []
     }
 
-    use (middleware) {
+    _initializeRoutes() {
+      const routeMap = Object.create(null) // Menor overhead que `new Map()`
+      for (const method of ALLOWED_METHODS) {
+        routeMap[method] = Object.create(null)
+      }
+      return routeMap
+    }
+
+    use(middleware) {
       this.middlewares.push(middleware)
     }
 
-    _addRoute (method, path, handlers) {
-      this.routes.get(method).set(path, handlers)
+    _addRoute(method, path, handlers) {
+      this.routes[method][path] = handlers
     }
 
-    get (path, ...handlers) {
+    get(path, ...handlers) {
       this._addRoute('GET', path, handlers)
     }
 
-    post (path, ...handlers) {
+    post(path, ...handlers) {
       this._addRoute('POST', path, handlers)
     }
 
-    put (path, ...handlers) {
+    put(path, ...handlers) {
       this._addRoute('PUT', path, handlers)
     }
 
-    delete (path, ...handlers) {
+    delete(path, ...handlers) {
       this._addRoute('DELETE', path, handlers)
     }
 
-    patch (path, ...handlers) {
+    patch(path, ...handlers) {
       this._addRoute('PATCH', path, handlers)
     }
 
-    listen (port) {
+    listen(port) {
       serve({
-        fetch: (req) => this._handleRequest(req),
-        port
+        fetch: this._handleRequest.bind(this),
+        port,
       })
-      console.info(language.current().express_1, port)
+      console.info(getMessages().express_1, port)
     }
 
-    async _handleRequest (req) {
+    async _handleRequest(req) {
       const { method, url } = req
+
+      if (!this.routes[method]) {
+        return bunResponse.empty(req)
+      }
+
       const path = new URL(url).pathname
 
-      for (const middleware of this.middlewares) {
-        await middleware(req)
+      if (this.middlewares.length > 0) {
+        await this._executeMiddlewares(req)
       }
-
-      if (!ALLOWED_METHODS.has(method)) return bunResponse.empty(req)
 
       const { handlers, params } = this._findHandler(method, path)
-      if (!handlers) return bunResponse.simpleError(req, 404, language.current().express_2)
-
-      req.params = params
-
-      for (const handler of handlers) {
-        const result = await handler(req)
-        if (result instanceof Response) return result
+      if (!handlers) {
+        return bunResponse.simpleError(req, 404, getMessages().express_2)
       }
 
-      return bunResponse.serverError(req)
+      req.params = params
+      return this._executeHandlers(handlers, req) || bunResponse.serverError(req)
     }
 
-    _findHandler (method, path) {
-      const params = {}
-      const methodRoutes = this.routes.get(method)
-      const handlers = methodRoutes.get(path)
+    async _executeMiddlewares(req) {
+      for (let i = 0; i < this.middlewares.length; i++) {
+        await this.middlewares[i](req)
+      }
+    }
 
-      if (handlers) return { handlers, params }
+    async _executeHandlers(handlers, req) {
+      for (let i = 0; i < handlers.length; i++) {
+        const result = await handlers[i](req)
+        if (result instanceof Response) return result
+      }
+    }
 
-      for (const [routePath, routeHandlers] of methodRoutes) {
+    _findHandler(method, path) {
+      const methodRoutes = this.routes[method]
+      const directHandler = methodRoutes[path]
+      if (directHandler) return { handlers: directHandler, params: {} }
+
+      return this._matchDynamicRoute(methodRoutes, path) || { handlers: null, params: {} }
+    }
+
+    _matchDynamicRoute(methodRoutes, path) {
+      const pathParts = path.split('/').filter(Boolean)
+
+      for (const routePath in methodRoutes) {
         const routePatternParts = routePath.split('/').filter(Boolean)
-        const pathParts = path.split('/').filter(Boolean)
-
         if (routePatternParts.length !== pathParts.length) continue
 
+        const params = Object.create(null)
         let isMatch = true
+
         for (let i = 0; i < routePatternParts.length; i++) {
           const part = routePatternParts[i]
           if (part.startsWith(':')) {
@@ -101,10 +120,9 @@ export default Object.freeze(
           }
         }
 
-        if (isMatch) return { handlers: routeHandlers, params }
+        if (isMatch) return { handlers: methodRoutes[routePath], params }
       }
-
-      return { handlers: null, params: {} }
+      return null
     }
   }
 )
