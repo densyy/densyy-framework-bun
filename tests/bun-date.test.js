@@ -18,7 +18,8 @@ describe('BunDate', () => {
 
   it('Deve adicionar horas corretamente', () => {
     const result = bunDate.addHours(5)
-    expect(result.getHours()).toBe(bunDate.now().getHours() + 5)
+    const expected = (bunDate.now().getHours() + 5) % 24
+    expect(result.getHours()).toBe(expected)
   })
 
   it('Deve adicionar dias corretamente', () => {
