@@ -8,12 +8,12 @@ const getMessages = () => language.current()
 
 export default Object.freeze(
   class BunExpress {
-    constructor() {
+    constructor () {
       this.routes = this._initializeRoutes()
       this.middlewares = []
     }
 
-    _initializeRoutes() {
+    _initializeRoutes () {
       const routeMap = Object.create(null) // Menor overhead que `new Map()`
       for (const method of ALLOWED_METHODS) {
         routeMap[method] = Object.create(null)
@@ -21,43 +21,43 @@ export default Object.freeze(
       return routeMap
     }
 
-    use(middleware) {
+    use (middleware) {
       this.middlewares.push(middleware)
     }
 
-    _addRoute(method, path, handlers) {
+    _addRoute (method, path, handlers) {
       this.routes[method][path] = handlers
     }
 
-    get(path, ...handlers) {
+    get (path, ...handlers) {
       this._addRoute('GET', path, handlers)
     }
 
-    post(path, ...handlers) {
+    post (path, ...handlers) {
       this._addRoute('POST', path, handlers)
     }
 
-    put(path, ...handlers) {
+    put (path, ...handlers) {
       this._addRoute('PUT', path, handlers)
     }
 
-    delete(path, ...handlers) {
+    delete (path, ...handlers) {
       this._addRoute('DELETE', path, handlers)
     }
 
-    patch(path, ...handlers) {
+    patch (path, ...handlers) {
       this._addRoute('PATCH', path, handlers)
     }
 
-    listen(port) {
+    listen (port) {
       serve({
         fetch: this._handleRequest.bind(this),
-        port,
+        port
       })
       console.info(getMessages().express_1, port)
     }
 
-    async _handleRequest(req) {
+    async _handleRequest (req) {
       const { method, url } = req
 
       if (!this.routes[method]) {
@@ -79,20 +79,20 @@ export default Object.freeze(
       return this._executeHandlers(handlers, req) || bunResponse.serverError(req)
     }
 
-    async _executeMiddlewares(req) {
+    async _executeMiddlewares (req) {
       for (let i = 0; i < this.middlewares.length; i++) {
         await this.middlewares[i](req)
       }
     }
 
-    async _executeHandlers(handlers, req) {
+    async _executeHandlers (handlers, req) {
       for (let i = 0; i < handlers.length; i++) {
         const result = await handlers[i](req)
         if (result instanceof Response) return result
       }
     }
 
-    _findHandler(method, path) {
+    _findHandler (method, path) {
       const methodRoutes = this.routes[method]
       const directHandler = methodRoutes[path]
       if (directHandler) return { handlers: directHandler, params: {} }
@@ -100,7 +100,7 @@ export default Object.freeze(
       return this._matchDynamicRoute(methodRoutes, path) || { handlers: null, params: {} }
     }
 
-    _matchDynamicRoute(methodRoutes, path) {
+    _matchDynamicRoute (methodRoutes, path) {
       const pathParts = path.split('/').filter(Boolean)
 
       for (const routePath in methodRoutes) {

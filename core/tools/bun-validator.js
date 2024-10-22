@@ -224,12 +224,12 @@ export default Object.freeze(
       if (cnpj.length !== 14 || /^(\d)\1+$/.test(cnpj)) return false
 
       const calc = (cnpj, length) => {
-        const weights = length === 12 ? [5,4,3,2,9,8,7,6,5,4,3,2] : [6,5,4,3,2,9,8,7,6,5,4,3,2]
+        const weights = length === 12 ? [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2] : [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
         let sum = 0
         for (let i = 0; i < weights.length; i++) {
           sum += cnpj[i] * weights[i]
         }
-        let result = sum % 11
+        const result = sum % 11
         return result < 2 ? 0 : 11 - result
       }
 
