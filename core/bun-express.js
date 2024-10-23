@@ -14,7 +14,7 @@ export default Object.freeze(
     }
 
     _initializeRoutes () {
-      const routeMap = Object.create(null) // Menor overhead que `new Map()`
+      const routeMap = Object.create(null)
       for (const method of ALLOWED_METHODS) {
         routeMap[method] = Object.create(null)
       }
@@ -59,15 +59,14 @@ export default Object.freeze(
 
     async _handleRequest (req) {
       const { method, url } = req
-
-      if (!this.routes[method]) {
-        return bunResponse.empty(req)
-      }
-
       const path = new URL(url).pathname
 
       if (this.middlewares.length > 0) {
         await this._executeMiddlewares(req)
+      }
+
+      if (!this.routes[method]) {
+        return bunResponse.empty(req)
       }
 
       const { handlers, params } = this._findHandler(method, path)

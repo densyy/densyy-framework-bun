@@ -1,7 +1,7 @@
 const corsHeaders = Object.freeze(
   new Map([
     ['Access-Control-Allow-Origin', '*'],
-    ['Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, PATCH'],
+    ['Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH'],
     ['Access-Control-Allow-Headers', 'Content-Type, x-access-token']
   ])
 )
