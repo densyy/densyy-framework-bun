@@ -4,12 +4,14 @@ import language from '../languages/index'
 const bunResponse = new BunResponse()
 const regexMongoId = /^[0-9a-fA-F]{24}$/
 
+const getMessages = () => language.current().middlewares
+
 export default function (req) {
   const ids = extractIds(req.params)
 
   if (ids.length && ids.every(id => regexMongoId.test(id))) return true
 
-  return bunResponse.simpleError(req, 406, language.current().middlewares.ids_1)
+  return bunResponse.simpleError(req, 406, getMessages().ids_1)
 }
 
 function extractIds (params = {}) {
