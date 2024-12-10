@@ -5,7 +5,7 @@ const STATUS_ERROR = 'error'
 const STATUS_CODE_SUCCESS = 200
 const STATUS_CODE_CREATED = 201
 const STATUS_CODE_SERVER_ERROR = 500
-const SERVER_ERROR_MESSAGE = language.current().tools.response_1
+const SERVER_ERROR_MESSAGE = () => language.current().tools.response_1
 
 export default Object.freeze(
   class BunResponse {
@@ -22,7 +22,7 @@ export default Object.freeze(
     }
 
     serverError (req) {
-      return this._sendResponse(req, STATUS_ERROR, STATUS_CODE_SERVER_ERROR, SERVER_ERROR_MESSAGE)
+      return this._sendResponse(req, STATUS_ERROR, STATUS_CODE_SERVER_ERROR, SERVER_ERROR_MESSAGE())
     }
 
     empty (req) {
