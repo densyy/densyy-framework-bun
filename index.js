@@ -19,6 +19,7 @@ import BunCurrency from './core/utils/bun-currency'
 import BunDate from './core/utils/bun-date'
 import BunNumber from './core/utils/bun-number'
 import BunString from './core/utils/bun-string'
+import BunLogger from './core/utils/bun-logger'
 
 export default {
   language,
@@ -43,6 +44,7 @@ export default {
     BunCurrency,
     BunDate,
     BunNumber,
-    BunString
+    BunString,
+    BunLogger
   }
 }
