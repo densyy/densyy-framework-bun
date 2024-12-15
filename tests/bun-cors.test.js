@@ -9,6 +9,6 @@ test('Middleware CORS deve definir corretamente os headers', () => {
   corsMiddleware(mockRequest)
 
   expect(mockRequest.responseHeaders.get('Access-Control-Allow-Origin')).toBe('*')
-  expect(mockRequest.responseHeaders.get('Access-Control-Allow-Methods')).toBe('GET, PUT, POST, DELETE, PATCH')
+  expect(mockRequest.responseHeaders.get('Access-Control-Allow-Methods')).toBe('GET, POST, PUT, DELETE, PATCH')
   expect(mockRequest.responseHeaders.get('Access-Control-Allow-Headers')).toBe('Content-Type, x-access-token')
 })

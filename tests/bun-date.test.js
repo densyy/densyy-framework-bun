@@ -29,7 +29,8 @@ describe('BunDate', () => {
 
   it('Deve adicionar meses corretamente', () => {
     const result = bunDate.addMonths(1)
-    expect(result.getMonth()).toBe(bunDate.now().getMonth() + 1)
+    const expected = (bunDate.now().getMonth() + 1) % 12
+    expect(result.getMonth()).toBe(expected)
   })
 
   it('Deve adicionar anos corretamente', () => {
