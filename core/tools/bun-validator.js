@@ -114,7 +114,7 @@ export default Object.freeze(
 
     number (field, value) {
       if (this._checkEmpty(value)) return
-      if (isNaN(Number(value))) {
+      if (typeof value !== 'number') {
         this._addError(field, getMessages().number(field))
       }
     }
