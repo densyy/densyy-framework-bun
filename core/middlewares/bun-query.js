@@ -6,7 +6,7 @@ export default function (req) {
     for (let [key, value] of params) {
       obj[key] = value
     }
-    return obj
+    req.query = obj
   } catch (error) {
     return {}
   }
