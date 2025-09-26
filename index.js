@@ -6,6 +6,7 @@ import bunHeaders from './core/middlewares/bun-headers'
 import bunHelmet from './core/middlewares/bun-helmet'
 import bunIds from './core/middlewares/bun-ids'
 import bunJson from './core/middlewares/bun-json'
+import bunQuery from './core/middlewares/bun-query'
 import bunMorgan from './core/middlewares/bun-morgan'
 import bunToken from './core/middlewares/bun-token'
 import bunMulter from './core/middlewares/bun-multer'
@@ -30,6 +31,7 @@ export default {
     bunHelmet,
     bunIds,
     bunJson,
+    bunQuery,
     bunMorgan,
     bunToken,
     bunMulter
